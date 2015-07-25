@@ -21,10 +21,14 @@
 	<link rel="stylesheet" href="~/Content/layout.css">
    <link rel="stylesheet" href="~/Content/media-queries.css">
    <link rel="stylesheet" href="~/Content/magnific-popup.css">
+   <link rel="stylesheet" type="text/css" href="~/Content/sweetalert.css">
+
 
    <!-- Script
    ================================================== -->
 	<script src="~/Scripts/modernizr.js"></script>
+    <script src="~/Scripts/sweetalert.min.js"></script>
+    <script src="~/Scripts/sweetalert-dev.js"></script>
 
    <!-- Favicons
 	================================================== -->
@@ -695,53 +699,47 @@
 
 
                <!-- form -->
-               <form action="/Home/sendmail" method="post" id="contactForm" name="contactForm">
+                   @*<form action="" method="" id="contactForm" name="contactForm">*@
 					<fieldset>
 
                   <div>
 						   <label for="contactName">Name <span class="required">*</span></label>
-						   <input type="text" value="" size="35" id="contactName" name="contactName" required="">
+						   <input type="text" value="" size="35" id="contactName" name="contactName" required>
                   </div>
 
                   <div>
 						   <label for="contactEmail">Email <span class="required">*</span></label>
-						   <input type="email" value="" size="35" id="contactEmail" name="contactEmail" required="">
+						   <input type="text" value="" size="35" id="contactEmail" name="contactEmail" required>
                   </div>
 
                   <div>
 						   <label for="contactSubject">Subject <span class="required">*</span></label>
-						   <input type="text" value="" size="35" id="contactSubject" name="contactSubject" required="">
+						   <input type="text" value="" size="35" id="contactSubject" name="contactSubject" required>
                   </div>
 
                   <div>
                      <label for="contactMessage">Message <span class="required">*</span></label>
-                     <textarea cols="50" rows="15" id="contactMessage" name="contactMessage" required=""></textarea>
+                     <textarea cols="50" rows="15" id="contactMessage" name="contactMessage" required></textarea>
                   </div>
 
                   <div>
-                      <label for="contactSubject"> <span class="required"></span></label>
-                      <input name="submit" type="submit" id="submit" class="submit" value="Send Email"> 
-                     <!-- <button name="submit" type="submit" class="submit" id="submit"> Submit </button> -->  
-                     <span id="image-loader">
-                        <img alt="" src="~/Images/loader.gif">
-                     </span>
+                     <button class="submit" onclick="sendMessage()">Submit</button>
+                     @*<span id="image-loader">
+                        <img alt="" src="images/loader.gif">
+                     </span>*@
                   </div>
 
 					</fieldset>
-				   </form> <!-- Form End -->
-                
-                <div id="message-warning">  @TempData["emailsent"]</div>
-                <script>/*
+				   @*</form>*@ <!-- Form End -->
+
                <!-- contact-warning -->
-               <div id="message-warning"> Error boy</div>
-        
+               <div id="message-warning"> @*Error boy*@</div>
                <!-- contact-success -->
 				   <div id="message-success">
-                  <i class="fa fa-check"></i>Your message was sent, thank you!<br>
+                  <i class="fa fa-check"></i>@*Your message was sent, thank you!*@<br>
 				   </div>
-                  */</script>
-            </div>
 
+            </div>
 
             <aside class="four columns footer-widgets">
 
@@ -830,6 +828,104 @@
    <script src="~/Scripts/jquery.fittext.js"></script>
    <script src="~/Scripts/magnific-popup.js"></script>
    <script src="~/Scripts/init.js"></script>
+
+        
+    <script>
+        function sendMessage() {
+            var n = $('#contactName').val();
+            var e = $('#contactEmail').val();
+            var s = $('#contactSubject').val();
+            var b = $('#contactMessaege').val();
+
+            $.ajax({
+                url: '/Home/SendEmail',
+                type: 'GET',
+                dataType: 'json',
+                data: { name: n, email: e, sub: s, body: b },
+                success: function (data) {
+                    if (data == true) {
+                        swal({
+                            title: "Thank You!",
+                            text: 'Your message has been delivered.\nI\'ll reply you as soon as possible ',
+                            type: 'success',
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                        $('#contactName').val("");
+                        $('#contactEmail').val();
+                        $('#contactSubject').val("");
+                        $('#contactBody').val("");
+                    }
+
+                    else {
+                        swal({
+                            title: "Error MSG!",
+                            text: 'Some issues with your request.\nMay be Network Problem. Please Check.',
+                            type: 'error',
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    }
+                }
+            });
+        }
+
+
+        function verifyEmail() {
+                var mail = $('#RegEmail').val();
+                $.ajax({
+                    url: '/Account/IsValidAddress',
+                    type: 'GET',
+                    dataType: 'json',
+                    data: { emailaddress: mail },
+                    success: function (data) {
+
+                        if (data == false) {
+                            swal({
+                                title: "Email Verfication",
+                                text: 'Invalid email format or already exists',
+                                type: 'warning',
+                                showConfirmButton: true,
+                            });
+
+                            $('#RegEmail').val("");
+                        }
+                        else {
+                            swal({
+                                title: "Email Verfication",
+                                text: 'Success',
+                                type: 'success',
+                                timer: 1000,
+                                showConfirmButton: false,
+                            });
+                        }
+                    }
+                });
+        }
+
+
+        function verifyPhone() {
+            var q = $('#Phone').val();
+                $.ajax({
+                    url: '/Item/IsInteger',
+                    type: 'GET',
+                    dataType: 'json',
+                    data: { value: q },
+                    success: function (data) {
+
+                        if (data == false) {
+                            swal({
+                                title: "Data Verfication",
+                                text: 'Please enter phone number (do not use any dashes)',
+                                type: 'warning',
+                                showConfirmButton: true,
+                            });
+                            $('#Phone').val("");
+                        }
+                    }
+                });
+        }
+</script>
 
 </body>
 
