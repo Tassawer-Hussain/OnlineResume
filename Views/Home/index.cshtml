@@ -699,7 +699,7 @@
 
 
                <!-- form -->
-                   @*<form action="" method="" id="contactForm" name="contactForm">*@
+                   <form method="get" id="contactForm" name="contactForm">
 					<fieldset>
 
                   <div>
@@ -709,7 +709,7 @@
 
                   <div>
 						   <label for="contactEmail">Email <span class="required">*</span></label>
-						   <input type="text" value="" size="35" id="contactEmail" name="contactEmail" required>
+						   <input type="text" value="" size="35" id="contactEmail" name="contactEmail"  onblur="verifyEmail()" required>
                   </div>
 
                   <div>
@@ -730,7 +730,7 @@
                   </div>
 
 					</fieldset>
-				   @*</form>*@ <!-- Form End -->
+				   </form> <!-- Form End -->
 
                <!-- contact-warning -->
                <div id="message-warning"> @*Error boy*@</div>
@@ -835,46 +835,56 @@
             var n = $('#contactName').val();
             var e = $('#contactEmail').val();
             var s = $('#contactSubject').val();
-            var b = $('#contactMessaege').val();
+            var b = $('#contactMessage').val();
 
-            $.ajax({
-                url: '/Home/SendEmail',
-                type: 'GET',
-                dataType: 'json',
-                data: { name: n, email: e, sub: s, body: b },
-                success: function (data) {
-                    if (data == true) {
-                        swal({
-                            title: "Thank You!",
-                            text: 'Your message has been delivered.\nI\'ll reply you as soon as possible ',
-                            type: 'success',
-                            timer: 3000,
-                            showConfirmButton: false
-                        });
-                        $('#contactName').val("");
-                        $('#contactEmail').val();
-                        $('#contactSubject').val("");
-                        $('#contactBody').val("");
-                    }
+            if (n == "" || e == "" || s == "" || b == "") {
+                swal({
+                    title: "Some thing is missing!",
+                    text: 'Please! fill all field ',
+                    type: 'error',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            }
+            else {
+                $.ajax({
+                    url: '/Home/SendEmail',
+                    type: 'GET',
+                    dataType: 'json',
+                    data: { name: n, email: e, sub: s, body: b },
+                    success: function (data) {
+                        if (data == true) {
+                            swal({
+                                title: "Thank You!",
+                                text: 'Your message has been delivered.\nI\'ll reply you as soon as possible ',
+                                type: 'success',
+                                timer: 3000,
+                                showConfirmButton: false
+                            });
+                            $('#contactName').val("");
+                            $('#contactEmail').val("");
+                            $('#contactSubject').val("");
+                            $('#contactMessage').val("");
+                        }
 
-                    else {
-                        swal({
-                            title: "Error MSG!",
-                            text: 'Some issues with your request.\nMay be Network Problem. Please Check.',
-                            type: 'error',
-                            timer: 3000,
-                            showConfirmButton: false
-                        });
+                        else {
+                            swal({
+                                title: "Error MSG!",
+                                text: 'Some issues with your request.\nMay be Network Problem. Please Check.',
+                                type: 'error',
+                                timer: 3000,
+                                showConfirmButton: false
+                            });
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
-
         function verifyEmail() {
-                var mail = $('#RegEmail').val();
+                var mail = $('#contactEmail').val();
                 $.ajax({
-                    url: '/Account/IsValidAddress',
+                    url: '/Validator/EmailIsValid',
                     type: 'GET',
                     dataType: 'json',
                     data: { emailaddress: mail },
@@ -883,12 +893,11 @@
                         if (data == false) {
                             swal({
                                 title: "Email Verfication",
-                                text: 'Invalid email format or already exists',
+                                text: 'Invalid email format. Please write carefully.',
                                 type: 'warning',
                                 showConfirmButton: true,
                             });
 
-                            $('#RegEmail').val("");
                         }
                         else {
                             swal({
